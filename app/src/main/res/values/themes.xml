@@ -1,0 +1,8 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Thème de base pour une compatibilité avec des vues XML -->
+    <style name="Base.Theme.WorldExplorer" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Personnalisation optionnelle -->
+    </style>
+
+    <style name="Theme.WorldExplorer" parent="Base.Theme.WorldExplorer" />
+</resources>

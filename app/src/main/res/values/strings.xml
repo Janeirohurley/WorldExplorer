@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">World Explorer</string>
+    <string name="home">Accueil</string>
+    <string name="favorites">Sauvegardés</string>
+    <string name="settings">Paramètres</string>
+    <string name="save_local">Sauvegarder en local</string>
+    <string name="remove_favorite">Retirer des favoris</string>
+    <string name="no_internet">Pas de connexion internet</string>
+    <string name="no_data">Aucune donnée disponible offline</string>
+    <string name="search_label">Rechercher par nom</string>
+    <string name="sort_by_population">Trier par population</string>
+</resources>
