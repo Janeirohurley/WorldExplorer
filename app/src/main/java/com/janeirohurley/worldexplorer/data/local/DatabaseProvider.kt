@@ -4,13 +4,18 @@ import android.content.Context
 import androidx.room.Room
 
 object DatabaseProvider {
-    private var database: AppDatabase? = null
+    private var INSTANCE: AppDatabase? = null
 
     fun getDatabase(context: Context): AppDatabase {
-        return database ?: Room.databaseBuilder(
-            context.applicationContext,
-            AppDatabase::class.java,
-            "world_explorer_db"
-        ).build().also { database = it }
+        if (INSTANCE == null) {
+            INSTANCE = Room.databaseBuilder(
+                context.applicationContext,
+                AppDatabase::class.java,
+                "worldexplorer.db"
+            )
+                .fallbackToDestructiveMigration() // 💣 supprime tout et recrée
+                .build()
+        }
+        return INSTANCE!!
     }
 }

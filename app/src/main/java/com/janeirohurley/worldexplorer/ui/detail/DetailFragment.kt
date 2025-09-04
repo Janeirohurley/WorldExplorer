@@ -23,9 +23,14 @@ fun DetailFragment(
     country: Country,
     viewModel: HomeViewModel
 ) {
-    // On récupère toujours la version actuelle depuis la DB
     val currentCountry by viewModel.getCountryByName(country.name)
         .collectAsState(initial = country)
+
+    val comments by viewModel.getCommentsForCountry(country.name)
+        .collectAsState(initial = emptyList())
+
+    var newComment by remember { mutableStateOf("") }
+    var showComments by remember { mutableStateOf(false) }
 
     currentCountry?.let { country ->
         Scaffold(
@@ -40,15 +45,38 @@ fun DetailFragment(
                 )
             },
             floatingActionButton = {
-                FloatingActionButton(
-                    onClick = { viewModel.toggleFavorite(country) },
-                    containerColor = if (country.isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
-                    contentColor = if (country.isFavorite) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
-                ) {
-                    Icon(
-                        imageVector = if (country.isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
-                        contentDescription = null
-                    )
+                Row {
+                    FloatingActionButton(
+                        onClick = { viewModel.toggleFavorite(country) },
+                        containerColor = if (country.isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
+                        contentColor = if (country.isFavorite) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
+                    ) {
+                        Icon(
+                            imageVector = if (country.isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                            contentDescription = "Favorite"
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(16.dp))
+
+                    // FAB avec badge
+                    BadgedBox(
+                        badge = {
+                            if (comments.isNotEmpty()) {
+                                Badge {
+                                    Text(comments.size.toString())
+                                }
+                            }
+                        }
+                    ) {
+                        FloatingActionButton(
+                            onClick = { showComments = !showComments },
+                            containerColor = MaterialTheme.colorScheme.secondary,
+                            contentColor = MaterialTheme.colorScheme.onSecondary
+                        ) {
+                            Icon(Icons.Filled.Comment, contentDescription = "Comments")
+                        }
+                    }
                 }
             }
         ) { innerPadding ->
@@ -60,6 +88,7 @@ fun DetailFragment(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 item {
+
                     // 🌍 Drapeau
                     Surface(
                         shape = RoundedCornerShape(0.dp),
@@ -94,6 +123,60 @@ fun DetailFragment(
                         InfoRowWithIcon(label = "Population", value = country.population.toString(), icon = Icons.Filled.People)
                         InfoRowWithIcon(label = "Monnaie", value = country.currency, icon = Icons.Filled.AttachMoney)
                         InfoRowWithIcon(label = "Langue", value = country.language, icon = Icons.Filled.Language)
+                    }
+
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    // 💬 Section commentaires
+                    if (showComments) {
+                        Text("Commentaires", style = MaterialTheme.typography.titleMedium)
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        // Liste
+                        comments.forEach { comment ->
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 4.dp),
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                            ) {
+                                Text(
+                                    text = comment.text,
+                                    modifier = Modifier.padding(12.dp),
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        // Input + bouton Post
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            OutlinedTextField(
+                                value = newComment,
+                                onValueChange = { newComment = it },
+                                label = { Text("Écrire un commentaire...") },
+                                modifier = Modifier.weight(1f)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Button(
+                                onClick = {
+                                    if (newComment.isNotBlank()) {
+                                        viewModel.addCommentHybrid(country.name, newComment)
+                                        newComment = ""
+                                    }
+                                }
+                            ) {
+                                Text("Post")
+                            }
+
+                        }
+
+                        Spacer(modifier = Modifier.height(70.dp))
                     }
                 }
             }
